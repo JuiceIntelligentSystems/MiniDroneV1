@@ -15,7 +15,9 @@ The drone is a quadcopter containing:
  A voltage divider is also present containing a 2.2K and 1.2K resistor
  
  The website contains 3 main pages:
+ 
  This is the main control panel
+ 
  *NOTE: The throttle Slider is only present for now just to hover the drone
  ![Screenshot 2023-04-01 070607](https://user-images.githubusercontent.com/129092528/229294071-03cda362-ae69-4ff9-810b-69a6dc2b54f2.png)
  This is the page containing sensor data of the gyro and barometer
