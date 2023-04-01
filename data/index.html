@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="libs/three.min.js"></script>
+</head>
+
+<body>
+    <div class="menu">
+        <button onclick="menuPressed()" class="menubtn">
+            <div class="menuIcon"></div>
+            <div class="menuIcon"></div>
+            <div class="menuIcon"></div>
+        </button>
+        <div id="Menu" class="menu-content">
+            <button class="link" onclick="openWindow(event, 'Controls')" id="defaultOpen">Controls</button>
+            <button class="link" onclick="openWindow(event, 'Statistics')">Statistics</button>
+            <button class="link" onclick="openWindow(event, 'PIDTuning')">PID Tuning</button>
+        </div>
+    </div>
+    <div class="VBatt">
+        <div class="topnav">
+            <span class="battery">Battery: <span id="V_Batt"></span>%</span>
+        </div>
+    </div>
+    <div id="Statistics" class="tabcontent">
+        <div class="topnav">
+            <h1> STATISTICS </h1>
+        </div>
+        <div class="content"></div>
+        <div class="cards">
+            <div class="card">
+                <p class="card-title">GYRO ANGLES</p>
+                <p><span class="reading">X: <span id="eulerX"></span> degrees</span>
+                </p>
+                <p><span class="reading">Y: <span id="eulerY"></span> degrees</span>
+                </p>
+                <p><span class="reading">Z: <span id="eulerZ"></span> degrees</span>
+                </p>
+            </div>
+            <div class="card">
+                <p class="card-title">BAROMETER MEASUREMENTS</p>
+                <p><span class="reading">Altitude: <span id="ALT"></span> m</span>
+                </p>
+                <p><span class="reading">Pressure: <span id="PRESS"></span> hPa</span>
+                </p>
+                <p><span class="reading">Temperature: <span id="TEMP"></span> C</span>
+                </p>
+            </div>
+        </div>
+        <div class="cube-content">
+            <div id="3Dcube"></div>
+        </div>
+    </div>
+    <div id="Controls" class="tabcontent">
+        <div class="topnav">
+            <h1> CONTROLS </h1>
+        </div>
+        <div class="content">
+            <p>
+                <button class="control-button" id="calibrateGyro" onclick="controlMessage(this)">Calibrate Gyro</button>
+            </p>
+            <div class="control-slider">
+                <p><input id="throttle" class="throttle-range" type="range" step="1" value="0" min="0" max="1000"></p>
+            </div>
+            <span class="throttle-range-val">THROTTLE: <span id="throttle-value"></span></span>
+        </div>
+        <div class="calib-cards" id="gyroCalib">
+            <div class="calib-card">
+                <p class="card-title">CALIBRATION</p>
+                <p class="reading" id="question">Do You Want To Calibrate Sensors?</p>
+                <p><span class="calibStage">Stage: <span id="CALIBDAT"></span></span>
+                </p>
+                <p class="calibStage" id="stage1">Rotate Drone On All Axis To Calibrate Sensor</p>
+                <p class="calibStage" id="stage2">Now Place It On a Flat Surface</p>
+                <p class="calibStage" id="stage3">Calculating Offsets...</p>
+                <p class="calibStage" id="stage4">Calibration Complete</p>
+                <p class="calibStage" id="stage5">Storing Data To ESP32 EEPROM...</p>
+                <p class="calibStage" id="stage6">Data Stored. Reload Page For Changes To Take Effect</p>
+                <button class="response-button" id="yescalibrate" onclick="controlMessage(this)">YES</button>
+                <button class="response-button" id="nocalibrate" onclick="controlMessage(this)">NO</button>
+            </div>
+        </div>
+    </div>
+    <div id="PIDTuning" class="tabcontent">
+        <div class="topnav">
+            <h1> PID TUNING </h1>
+        </div>
+        <div class="content"></div>
+        <div class="cards-PID">
+            <div class="card">
+                <p class="card-title">Pitch / Roll Gain</p>
+                <p>
+                    <button id="Ppitchrollinc" class="inc" onclick="setgain(this)">INC P</button>
+                    <button id="Ipitchrollinc" class="inc" onclick="setgain(this)">INC I</button>
+                    <button id="Dpitchrollinc" class="inc" onclick="setgain(this)">INC D</button>
+                </p>
+                <button id="rollMultinc" class="inc_mult" onclick="setMult(this)"><i class="arrow left"></i></button>
+                <button id="rollMultdec" class="dec_mult" onclick="setMult(this)"><i class="arrow right"></i></button>
+                <p>
+                    <button id="Ppitchrolldec" class="dec" onclick="setgain(this)">DEC P</button>
+                    <button id="Ipitchrolldec" class="dec" onclick="setgain(this)">DEC I</button>
+                    <button id="Dpitchrolldec" class="dec" onclick="setgain(this)">DEC D</button>
+                </p>
+                <p>
+                    <span class="reading">P: <span id="P_pitchroll"></span> </span>
+                    <span class="reading">I: <span id="I_pitchroll"></span> </span>
+                    <span class="reading">D: <span id="D_pitchroll"></span> </span>
+                </p>
+            </div>
+            <div class="card">
+                <p class="card-title">Yaw Gain</p>
+                <p>
+                    <button id="Pyawinc" class="inc" onclick="setgain(this)">INC P</button>
+                    <button id="Iyawinc" class="inc" onclick="setgain(this)">INC I</button>
+                    <button id="Dyawinc" class="inc" onclick="setgain(this)">INC D</button>
+                </p>
+                <button id="yawMultinc" class="inc_mult" onclick="setMult(this)"><i class="arrow left"></i></button>
+                <button id="yawMultdec" class="dec_mult" onclick="setMult(this)"><i class="arrow right"></i></button>
+                <p>
+                    <button id="Pyawdec" class="dec" onclick="setgain(this)">DEC P</button>
+                    <button id="Iyawdec" class="dec" onclick="setgain(this)">DEC I</button>
+                    <button id="Dyawdec" class="dec" onclick="setgain(this)">DEC D</button>
+                </p>
+                <p>
+                    <span class="reading">P: <span id="P_yaw"></span> </span>
+                    <span class="reading">I: <span id="I_yaw"></span> </span>
+                    <span class="reading">D: <span id="D_yaw"></span> </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

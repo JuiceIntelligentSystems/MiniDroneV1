@@ -1,0 +1,343 @@
+html {
+    font-family: Arial;
+    display: inline-block;
+    text-align: center;
+}
+
+p {
+    font-size: 1.2rem;
+}
+
+body {
+    margin: 0;
+}
+
+.topnav {
+    overflow: hidden;
+    background-color: #003366;
+    color: #FFD43B;
+    font-size: 1rem;
+}
+
+.content {
+    padding: 20px;
+}
+
+.card {
+    background-color: white;
+    box-shadow: 2px 2px 12px 1px rgba(140, 140, 140, 0);
+}
+
+.calib-card {
+    background-color: white;
+    box-shadow: 55px 55px 200px 200px rgb(0, 0, 0);
+}
+
+.card-title {
+    color: #003366;
+    font-weight: bold;
+}
+
+.cards {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.calib-cards {
+    position: fixed;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    margin: 0 auto;
+    display: none;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.reading {
+    font-size: 1.2rem;
+}
+
+.battery {
+    position: absolute;
+    top: 4%;
+    right: 5%;
+    font-size: 1.5rem;
+}
+
+.cube-content {
+    width: 100%;
+    background-color: white;
+    height: 300px;
+    margin: auto;
+    padding-top: 2%;
+}
+
+.menu {
+    position: absolute;
+    top: 3%;
+    left: 3%;
+}
+
+.menuIcon {
+    width: 30px;
+    height: 3px;
+    background-color: #FFD43B;
+    margin: 6px 0;
+}
+
+.menubtn {
+    background-color: #003366;
+    border: none;
+    cursor: pointer;
+}
+
+.menubtn:hover,
+.menubtn:focus {
+    background-color: rgb(1, 0, 87);
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 125px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.menu-content button {
+    color: black;
+    padding: 16px, 16px;
+    margin: 5px;
+    text-decoration: none;
+    font-size: large;
+    display: block;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.menu-content button:hover {
+    background-color: #ddd;
+}
+
+.show {
+    display: block;
+}
+
+.tabcontent {
+    display: none;
+    border: none;
+}
+
+.debug-slider {
+    transform: rotate(270deg);
+    width: 25%;
+    display: grid;
+    grid-gap: 4rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    margin: 0 auto;
+}
+
+.control-slider {
+    transform: rotate(270deg);
+    position: absolute;
+    top: 50%;
+    left: 35%;
+    width: 400px;
+    display: grid;
+    margin: 0 auto;
+}
+
+.input1-range,
+.input2-range,
+.input3-range,
+.input4-range,
+.throttle-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 50%;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.input1-range:hover,
+.input2-range:hover,
+.input3-range:hover,
+.input4-range:hover,
+.throttle-range:hover {
+    opacity: 1;
+}
+
+.input1-range::-webkit-slider-thumb,
+.input2-range::-webkit-slider-thumb,
+.input3-range::-webkit-slider-thumb,
+.input4-range::-webkit-slider-thumb,
+.throttle-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 50px;
+    height: 30px;
+    background-color: #003366;
+    cursor: pointer;
+}
+
+.range1-value,
+.range2-value,
+.range3-value,
+.range4-value {
+    position: relative;
+    height: 55px;
+    margin: 0 25px;
+}
+
+.throttle-range-val {
+    position: absolute;
+    top: 90%;
+    left: 45%;
+}
+
+.cards-PID {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.dec {
+    margin-top: -10%;
+    border: none;
+    color: #FEFCFB;
+    background-color: #003366;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    width: 100px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.inc {
+    margin-bottom: -10%;
+    border: none;
+    color: #FEFCFB;
+    background-color: #003366;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    width: 100px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.dec:hover,
+.inc:hover {
+    background-color: #0032678e;
+}
+
+.dec_mult {
+    margin-left: 220px;
+    border: none;
+    color: #FEFCFB;
+    background-color: #003366;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    width: 50px;
+    border-radius: 4px;
+}
+
+.inc_mult {
+    border: none;
+    color: #FEFCFB;
+    background-color: #003366;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    width: 50px;
+    border-radius: 4px;
+}
+
+.dec_mult:hover,
+.inc_mult:hover {
+    background-color: #0032678e;
+}
+
+.arrow {
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+}
+
+.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+}
+
+.control-button {
+    position: relative;
+    top: 10%;
+    left: -40%;
+    border: none;
+    color: #FEFCFB;
+    background-color: #003366;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    text-align: center;
+    display: inline-block;
+    font-size: 20px;
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+}
+
+.control-button:hover {
+    background-color: #0032678e;
+}
+
+.response-button {
+    border: none;
+    color: #FEFCFB;
+    background-color: #003366;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    width: 200px;
+    height: 50px;
+    border-radius: 10px;
+}
+
+.response-button:hover {
+    background-color: #0032678e;
+}
+
+.calibStage {
+    display: none;
+    font-size: 1.2rem;
+}
