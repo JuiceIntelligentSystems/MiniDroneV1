@@ -1,3 +1,5 @@
+const throttleJoystick = createThrottleJoystick(document.getElementById("throttleJoystickWrapper"));
+const directionJoystick = createDirectionJoystick(document.getElementById("directionJoystickWrapper"));
 document.getElementById("defaultOpen").click(); // Open Control Menu on startup
 
 /* -------------------------3D DRONE REPRESENTATION------------------------- */
@@ -60,17 +62,17 @@ init3D();
 if (!!window.EventSource) {
     var source = new EventSource('/events');
 
-    source.addEventListener('open', function(e) {
+    source.addEventListener('open', function (e) {
         console.log("Events Connected");
     }, false);
 
-    source.addEventListener('error', function(e) {
+    source.addEventListener('error', function (e) {
         if (e.target.readyState != EventSource.OPEN) {
             console.log("Events Disconnected");
         }
     }, false);
 
-    source.addEventListener('gyro_readings', function(e) {
+    source.addEventListener('gyro_readings', function (e) {
         var obj = JSON.parse(e.data);
         document.getElementById("eulerX").innerHTML = obj.eulerX;
         document.getElementById("eulerY").innerHTML = obj.eulerY;
@@ -82,14 +84,14 @@ if (!!window.EventSource) {
         renderer.render(scene, camera);
     }, false);
 
-    source.addEventListener('baro_readings', function(e) {
+    source.addEventListener('baro_readings', function (e) {
         var obj = JSON.parse(e.data);
         document.getElementById('ALT').innerHTML = obj.ALT;
         document.getElementById('PRESS').innerHTML = obj.PRESS;
         document.getElementById('TEMP').innerHTML = obj.TEMP;
     }, false);
 
-    source.addEventListener('calib_stage', function(e) {
+    source.addEventListener('calib_stage', function (e) {
         var obj = JSON.parse(e.data);
         document.getElementById('CALIBDAT').innerHTML = obj.CALIBDAT;
         if (obj.CALIBDAT == 1) {
@@ -119,7 +121,7 @@ function menuPressed() {
     document.getElementById("Menu").classList.toggle("show");
 }
 
-window.onclick = function(event) {
+window.onclick = function (event) {
     if (!event.target.matches(".menubtn")) {
         var dropdowns = document.getElementsByClassName("menu-content");
         for (var i = 0; i < dropdowns.length; i++) {
@@ -148,7 +150,7 @@ var throttle = document.getElementById("throttle"),
 
 throttle_val.innerHTML = throttle.value;
 
-throttle.oninput = function() {
+throttle.oninput = function () {
     throttle_val.innerHTML = this.value;
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "/throttle?value=" + this.value, true);
@@ -172,7 +174,7 @@ function setMult(element) {
 }
 
 // Receives and displays gain values
-source.addEventListener('pid_gains', function(e) {
+source.addEventListener('pid_gains', function (e) {
     var obj = JSON.parse(e.data);
     document.getElementById('P_pitchroll').innerHTML = obj.PPitchRoll;
     document.getElementById('I_pitchroll').innerHTML = obj.IPitchRoll;
@@ -203,7 +205,140 @@ function controlMessage(element) {
     xhr.send();
 }
 
-source.addEventListener('battery_voltage', function(e) {
+source.addEventListener('battery_voltage', function (e) {
     var obj = JSON.parse(e.data);
     document.getElementById('V_Batt').innerHTML = obj.VBATT;
 }, false);
+
+/*------------------------------JOYSTICK CONTROLS-------------------------------*/
+// I did this part during hackathon
+
+function createDirectionJoystick(parent) {
+    const maxDiff = 100;
+    const stick = document.createElement('div');
+    stick.classList.add('joystick');
+
+    stick.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    stick.addEventListener('touchstart', handleMouseDown);
+    document.addEventListener('touchmove', handleMouseMove);
+    document.addEventListener('touchend', handleMouseUp);
+
+    let dragStart = null;
+    let currentPos = { x: 0, y: 0 };
+    stick.style.transform = `translate3d(80px, 80px, 0px)`;
+
+    let xNew, yNew;
+
+    function handleMouseDown(event) {
+        stick.style.transition = '0s';
+        if (event.changedTouches) {
+            dragStart = {
+                x: event.changedTouches[0].clientX,
+                y: event.changedTouches[0].clientY,
+            };
+            return;
+        }
+        dragStart = {
+            x: event.clientX,
+            y: event.clientY,
+        };
+
+    }
+
+    function handleMouseMove(event) {
+        if (dragStart === null) return;
+        event.preventDefault();
+        if (event.changedTouches) {
+            event.clientX = event.changedTouches[0].clientX;
+            event.clientY = event.changedTouches[0].clientY;
+        }
+        const xDiff = event.clientX - dragStart.x;
+        const yDiff = event.clientY - dragStart.y;
+        const angle = Math.atan2(yDiff, xDiff);
+        const distance = Math.min(maxDiff, Math.hypot(xDiff, yDiff));
+        xNew = distance * Math.cos(angle) + 80;
+        yNew = distance * Math.sin(angle) + 80;
+        stick.style.transform = `translate3d(${xNew}px, ${yNew}px, 0px)`;
+        currentPos = { x: xNew, y: yNew };
+    }
+
+    function handleMouseUp(event) {
+        if (dragStart === null) return;
+        stick.style.transition = '.005s';
+        stick.style.transform = `translate3d(80px, 80px, 0px)`;
+        dragStart = null;
+        currentPos = { x: 0, y: 0 };
+    }
+
+    parent.appendChild(stick);
+    return {
+        getPosition: () => currentPos,
+    };
+}
+
+function createThrottleJoystick(parent) {
+    const maxDiff = 100;
+    const stick = document.createElement('div');
+    stick.classList.add('joystick');
+
+    stick.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    stick.addEventListener('touchstart', handleMouseDown);
+    document.addEventListener('touchmove', handleMouseMove);
+    document.addEventListener('touchend', handleMouseUp);
+
+    let dragStart = null;
+    let currentPos = { x: 0, y: 0 };
+    stick.style.transform = `translate3d(80px, 80px, 0px)`;
+
+    let xNew, yNew;
+
+    function handleMouseDown(event) {
+        stick.style.transition = '0s';
+        if (event.changedTouches) {
+            dragStart = {
+                x: event.changedTouches[0].clientX,
+                y: event.changedTouches[0].clientY,
+            };
+            return;
+        }
+        dragStart = {
+            x: event.clientX,
+            y: event.clientY,
+        };
+
+    }
+
+    function handleMouseMove(event) {
+        if (dragStart === null) return;
+        event.preventDefault();
+        if (event.changedTouches) {
+            event.clientX = event.changedTouches[0].clientX;
+            event.clientY = event.changedTouches[0].clientY;
+        }
+        const xDiff = event.clientX - dragStart.x;
+        const yDiff = event.clientY - dragStart.y;
+        const angle = Math.atan2(yDiff, xDiff);
+        const distance = Math.min(maxDiff, Math.hypot(xDiff, yDiff));
+        xNew = distance * Math.cos(angle) + 80;
+        yNew = distance * Math.sin(angle) + 80;
+        stick.style.transform = `translate3d(${xNew}px, ${yNew}px, 0px)`;
+        currentPos = { x: xNew, y: yNew };
+    }
+
+    function handleMouseUp(event) {
+        if (dragStart === null) return;
+        stick.style.transition = '.005s';
+        stick.style.transform = `translate3d(80px, ${yNew}px, 0px)`;
+        dragStart = null;
+        currentPos = { x: 0, y: 0 };
+    }
+
+    parent.appendChild(stick);
+    return {
+        getPosition: () => currentPos,
+    };
+}

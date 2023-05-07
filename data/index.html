@@ -66,10 +66,25 @@
             <p>
                 <button class="control-button" id="calibrateGyro" onclick="controlMessage(this)">Calibrate Gyro</button>
             </p>
+            <!--
             <div class="control-slider">
                 <p><input id="throttle" class="throttle-range" type="range" step="1" value="0" min="0" max="1000"></p>
             </div>
             <span class="throttle-range-val">THROTTLE: <span id="throttle-value"></span></span>
+            -->
+            <div id="joysticks">
+                <div id="throttleJoystickMain">
+                    <div id="throttleJoystickWrapper"></div>
+                </div>
+                <div id="directionJoystickMain">
+                    <div id="directionJoystickWrapper"></div>
+                </div>
+            </div>
+            <p></p>
+            <div class="joystickInfo">
+                <span class="joystickNames1">THROTTLE / YAW</span>
+                <span class="joystickNames2">DIRECTION</span>
+            </div>
         </div>
         <div class="calib-cards" id="gyroCalib">
             <div class="calib-card">

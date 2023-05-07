@@ -182,7 +182,8 @@ body {
 .input2-range::-webkit-slider-thumb,
 .input3-range::-webkit-slider-thumb,
 .input4-range::-webkit-slider-thumb,
-.throttle-range::-webkit-slider-thumb {
+.throttle-range::-webkit-slider-thumb,
+.throttle-range::-moz-range-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 50px;
@@ -204,6 +205,22 @@ body {
     position: absolute;
     top: 90%;
     left: 45%;
+}
+
+.joystickNames1 {
+    font-size: 3rem;
+    color: rgb(1, 0, 87);
+    margin-right: 600px;
+}
+
+.joystickNames2 {
+    font-size: 3rem;
+    color: rgb(1, 0, 87);
+    margin-right: 50px;
+}
+
+.joystickInfo {
+    display: inline-block;
 }
 
 .cards-PID {
@@ -340,4 +357,34 @@ body {
 .calibStage {
     display: none;
     font-size: 1.2rem;
+}
+
+#joysticks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+#throttleJoystickMain,
+#directionJoystickMain {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+}
+
+#throttleJoystickWrapper,
+#directionJoystickWrapper {
+    border-radius: 300px;
+    background-color: #00336683;
+    width: 300px;
+    height: 300px;
+}
+
+.joystick {
+    background-color: #003366;
+    border-radius: 50%;
+    cursor: pointer;
+    height: 50%;
+    user-select: none;
+    width: 50%;
 }
