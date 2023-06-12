@@ -69,14 +69,6 @@ body {
     font-size: 1.5rem;
 }
 
-.cube-content {
-    width: 100%;
-    background-color: white;
-    height: 300px;
-    margin: auto;
-    padding-top: 2%;
-}
-
 .menu {
     position: absolute;
     top: 3%;
@@ -210,13 +202,11 @@ body {
 .joystickNames1 {
     font-size: 3rem;
     color: rgb(1, 0, 87);
-    margin-right: 600px;
 }
 
 .joystickNames2 {
     font-size: 3rem;
     color: rgb(1, 0, 87);
-    margin-right: 50px;
 }
 
 .joystickInfo {
@@ -387,4 +377,8 @@ body {
     height: 50%;
     user-select: none;
     width: 50%;
+}
+
+.joysticktext {
+    padding-bottom: 25px;
 }

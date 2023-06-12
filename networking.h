@@ -82,6 +82,7 @@ void Network::startNetwork()
             throttleInputMessage = request->getParam("value")->value();
             for (int i = 0; i < 4; i++) {
                 bldc[i] = throttleInputMessage.toInt();
+                //Serial.println(throttleInputMessage.toInt());
             }
         } else {
             throttleInputMessage = "No message sent";

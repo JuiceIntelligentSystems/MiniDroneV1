@@ -8,7 +8,6 @@
     <title>Control Panel</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="libs/three.min.js"></script>
 </head>
 
 <body>
@@ -54,9 +53,6 @@
                 </p>
             </div>
         </div>
-        <div class="cube-content">
-            <div id="3Dcube"></div>
-        </div>
     </div>
     <div id="Controls" class="tabcontent">
         <div class="topnav">
@@ -73,17 +69,21 @@
             <span class="throttle-range-val">THROTTLE: <span id="throttle-value"></span></span>
             -->
             <div id="joysticks">
-                <div id="throttleJoystickMain">
-                    <div id="throttleJoystickWrapper"></div>
+                <div class="joysticktext">
+                    <div id="throttleJoystickMain">
+                        <div id="throttleJoystickWrapper"></div>
+                    </div>
+                    <h1 class="joystickNames1">THROTTLE / YAW</h1>
                 </div>
-                <div id="directionJoystickMain">
-                    <div id="directionJoystickWrapper"></div>
+                <div class="joysticktext">
+                    <div id="directionJoystickMain">
+                        <div id="directionJoystickWrapper"></div>
+                    </div>
+                    <h1 class="joystickNames2">DIRECTION</h1>
                 </div>
             </div>
-            <p></p>
             <div class="joystickInfo">
-                <span class="joystickNames1">THROTTLE / YAW</span>
-                <span class="joystickNames2">DIRECTION</span>
+
             </div>
         </div>
         <div class="calib-cards" id="gyroCalib">
