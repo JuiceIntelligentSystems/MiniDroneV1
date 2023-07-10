@@ -111,14 +111,14 @@ throttle.oninput = function() {
 // Sets the gain data
 function setgain(element) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/" + element.id, true);
+    xhr.open("GET", "/pidgain?" + element.id, true);
     console.log(element.id);
     xhr.send();
 }
 //Sets the multiplier of last changed value
 function setMult(element) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/" + element.id, true);
+    xhr.open("GET", "/pidmult?" + element.id, true);
     console.log(element.id);
     xhr.send();
 }
@@ -139,17 +139,17 @@ source.addEventListener('pid_gains', function(e) {
 // Sends info to the ESP
 function controlMessage(element) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/" + element.id, true);
+    xhr.open("GET", "/calibrate?" + element.id, true);
     if (element.id == 'calibrateGyro') {
         document.getElementById('gyroCalib').style.display = "grid";
     }
-    if (element.id == 'nocalibrate') {
+    if (element.id == 'no') {
         document.getElementById('gyroCalib').style.display = "none";
     }
-    if (element.id == 'yescalibrate') {
+    if (element.id == 'yes') {
         document.getElementById("question").style.display = "none";
-        document.getElementById("nocalibrate").style.display = "none";
-        document.getElementById("yescalibrate").style.display = "none";
+        document.getElementById("no").style.display = "none";
+        document.getElementById("yes").style.display = "none";
     }
     console.log(element.id);
     xhr.send();
@@ -220,8 +220,8 @@ function createDirectionJoystick(parent) {
         var xhr_pitch = new XMLHttpRequest();
         var xhr_roll = new XMLHttpRequest();
 
-        xhr_pitch.open("GET", "/pitch?value=" + Math.round(current_dir_pos.y), true);
-        xhr_roll.open("GET", "/roll?value=" + Math.round(current_dir_pos.x), true);
+        xhr_pitch.open("GET", "/controls?pitch=" + Math.round(current_dir_pos.y), true);
+        xhr_roll.open("GET", "/controls?roll=" + Math.round(current_dir_pos.x), true);
 
         xhr_pitch.send();
         xhr_roll.send();
@@ -304,8 +304,8 @@ function createThrottleJoystick(parent) {
         var xhr_throttle = new XMLHttpRequest();
         var xhr_yaw = new XMLHttpRequest();
 
-        xhr_throttle.open("GET", "/throttle?value=" + Math.round(current_throttle_pos.y), true);
-        xhr_yaw.open("GET", "/yaw?value=" + Math.round(current_throttle_pos.x), true);
+        xhr_throttle.open("GET", "/controls?throttle=" + Math.round(current_throttle_pos.y), true);
+        xhr_yaw.open("GET", "/controls?yaw=" + Math.round(current_throttle_pos.x), true);
 
         xhr_throttle.send();
         xhr_yaw.send();

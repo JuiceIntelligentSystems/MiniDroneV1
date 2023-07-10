@@ -27,7 +27,7 @@ private:
     float old_error[3] = {0.0, 0.0, 0.0};
     float total_error[3] = {0.0, 0.0, 0.0};
     float new_error[3] = {0.0, 0.0, 0.0};
-    float pitch_setpoint = 0.0, roll_setpoint = 0.0, yaw_setpoint = 0.0;
+    float setpoint[3] = {0.0, 0.0, 0.0};
     float angle_yaw = 0.0;
     int adjustments[3] = {0, 0, 0};
 
@@ -42,7 +42,8 @@ public:
 
     void init();
     void calibrateESCs();
-    void control(int *);
+    void setSetpoints(int *);
+    void control(int);
     void close();
     void calculatePID(float, float, float);
     void sendPIDGains();
@@ -93,6 +94,17 @@ void Controller::calibrateESCs()
     delay(500);
 }
 
+void Controller::setSetpoints(int *control_input)
+{
+    for (int i = 0; i < NUM_OF_MOTORS; i++)
+    {
+        control_input[i] = map(control_input[i], -1000, 1000, 0, 1000);
+
+        if (control_input[i] < 485) setpoint[i] = (control_input[i] - 485.0) / 3.0;
+        if (control_input[i] > 515) setpoint[i] = (control_input[i] - 515.0) / 3.0;
+    }
+}
+
 void Controller::calculatePID(float gyro_roll, float gyro_pitch, float gyro_yaw)
 {
     for (int i = 0; i < 3; i++)
@@ -115,29 +127,31 @@ void Controller::calculatePID(float gyro_roll, float gyro_pitch, float gyro_yaw)
     angles[1] = gyro_roll;
     angles[2] = angle_yaw;
 
-    new_error[0] = pitch_setpoint - angles[0];
-    new_error[1] = roll_setpoint - angles[1];
-    new_error[2] = yaw_setpoint - angles[2];
+    new_error[0] = setpoint[0] - angles[0];
+    new_error[1] = setpoint[1] - angles[1];
+    new_error[2] = setpoint[2] - angles[2];
 
-    // Integral Calculations
+    // Integrations
     total_error[0] += pitch_gains[1] * new_error[0] * dt;
     total_error[1] += roll_gains[1] * new_error[1] * dt;
     total_error[2] += yaw_gains[1] * new_error[2] * dt;
 
     // Calculate Whole PID
     //                              Proportional              Integral                   Derivative
-    adjustments[0] = (int)(pitch_gains[0] * new_error[0] + total_error[0] + pitch_gains[2] * ((new_error[0] - old_error[0]) / dt));
-    adjustments[1] = (int)(roll_gains[0] * new_error[1] + total_error[1] + roll_gains[2] * ((new_error[1] - old_error[1]) / dt));
+    adjustments[0] = (int)(pitch_gains[0] * new_error[0] + total_error[0] + pitch_gains[2] * (new_error[0] - old_error[0]) / dt);
+    adjustments[1] = (int)(roll_gains[0] * new_error[1] + total_error[1] + roll_gains[2] * (new_error[1] - old_error[1]) / dt);
     adjustments[2] = (int)(yaw_gains[0] * new_error[2] + total_error[2]);
 }
 
-void Controller::control(int *bldc)
+void Controller::control(int throttle)
 {
+    throttle = map(throttle, -1000, 1000, 0, 1000);
+
     //                          Pitch            Roll             Yaw
-    new_speeds[0] = bldc[0] - adjustments[0] - adjustments[1] + adjustments[2];
-    new_speeds[1] = bldc[1] - adjustments[0] + adjustments[1] - adjustments[2];
-    new_speeds[2] = bldc[2] + adjustments[0] + adjustments[1] + adjustments[2];
-    new_speeds[3] = bldc[3] + adjustments[0] - adjustments[1] - adjustments[2];
+    new_speeds[0] = throttle - adjustments[0] - adjustments[1] + adjustments[2];
+    new_speeds[1] = throttle - adjustments[0] + adjustments[1] - adjustments[2];
+    new_speeds[2] = throttle + adjustments[0] + adjustments[1] + adjustments[2];
+    new_speeds[3] = throttle + adjustments[0] - adjustments[1] - adjustments[2];
 
     for (int i = 0; i < NUM_OF_MOTORS; i++)
     {
@@ -212,7 +226,8 @@ void Controller::loopRate(int freq)
     float invFreq = 1.0 / freq * 1000.0;
     unsigned long checker = millis();
 
-    while (invFreq > (checker - current_time)) {
+    while (invFreq > (checker - current_time))
+    {
         checker = millis();
     }
 }

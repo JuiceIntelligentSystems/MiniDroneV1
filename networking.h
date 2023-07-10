@@ -8,14 +8,16 @@
 #include <SPIFFS.h>
 
 #define BNO055_SAMPLERATE_MS (10)
-#define MPL_SAMPLERATE_MS (10)
-#define SAMPLE_RATE (10)
-#define BATT_SAMPLE_RATE (1000)
+#define MPL_SAMPLERATE_MS (11)
+#define SAMPLE_RATE (12)
+#define BATT_SAMPLE_RATE (1500)
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
 
-int bldc[4] = {0, 0, 0, 0};
+int throttle = 0;
+
+int control_input[3] = {0, 0, 0};
 
 extern float pitch_gains[3];
 extern float roll_gains[3];
@@ -74,222 +76,238 @@ void Network::startNetwork()
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send(SPIFFS, "/index.html", "text/html"); });
 
-    // Throttle Slider
-    server.on("/throttle", HTTP_GET, [](AsyncWebServerRequest *request)
+    // Main Joystick Controls
+    server.on("/controls", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        String throttleInputMessage;
-        if (request->hasParam("value")) {
-            throttleInputMessage = request->getParam("value")->value();
-            for (int i = 0; i < 4; i++) {
-                bldc[i] = throttleInputMessage.toInt();
-                //Serial.println(throttleInputMessage.toInt());
-            }
-        } else {
-            throttleInputMessage = "No message sent";
-        } 
+        String inputMessage;
+        if (request->hasParam("throttle")) {
+            inputMessage = request->getParam("throttle")->value();
+            throttle = inputMessage.toInt();
+            Serial.print("Throttle: ");
+            Serial.println(throttle);
+        }
+        else if (request->hasParam("yaw")) {
+            inputMessage = request->getParam("yaw")->value();
+            control_input[2] = inputMessage.toInt();
+            Serial.print("Yaw: ");
+            Serial.println(control_input[2]);
+        }
+        else if (request->hasParam("pitch")) {
+            inputMessage = request->getParam("pitch")->value();
+            control_input[1] = inputMessage.toInt();
+            Serial.print("Pitch: ");
+            Serial.println(control_input[1]);
+        }
+        else if (request->hasParam("roll")) {
+            inputMessage = request->getParam("roll")->value();
+            control_input[0] = inputMessage.toInt();
+            Serial.print("Roll: ");
+            Serial.println(control_input[0]);
+        }
+        else {
+            inputMessage = "No message sent";
+        }
+
         request->send(200, "text/plain", "OK"); });
 
     // PID Tuning
+    // DEBUG! OFFICIAL VALUES WILL BE SET AND LOCKED AFTER TUNING
     // Set Multiplier Amount For PID Tuning
-    server.on("/rollMultinc", HTTP_GET, [](AsyncWebServerRequest *request)
+    server.on("/pidmult", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        pid_roll_mult_amt++;
-        if (pid_roll_mult_amt > 2) {
-            pid_roll_mult_amt = 2;
+        if (request->hasParam("rollinc")) {
+            pid_roll_mult_amt++;
+            if (pid_roll_mult_amt > 2) {
+                pid_roll_mult_amt = 2;
+            }
         }
-        request->send(200, "text/plain", "OK"); });
-    server.on("/rollMultdec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        pid_roll_mult_amt--;
-        if (pid_roll_mult_amt < 0) {
-            pid_roll_mult_amt = 0;
+        if (request->hasParam("rolldec")) {
+            pid_roll_mult_amt--;
+            if (pid_roll_mult_amt < 0) {
+                pid_roll_mult_amt = 0;
+            }
         }
-        request->send(200, "text/plain", "OK"); });
-    server.on("/yawMultinc", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        pid_yaw_mult_amt++;
-        if (pid_yaw_mult_amt > 2) {
-            pid_yaw_mult_amt = 2;
+        if (request->hasParam("yawinc")) {
+            pid_yaw_mult_amt++;
+            if (pid_yaw_mult_amt > 2) {
+                pid_yaw_mult_amt = 2;
+            }
         }
-        request->send(200, "text/plain", "OK"); });
-    server.on("/yawMultdec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        pid_yaw_mult_amt--;
-        if (pid_yaw_mult_amt < 0) {
-            pid_yaw_mult_amt = 0;
+        if (request->hasParam("yawdec")) {
+            pid_yaw_mult_amt--;
+            if (pid_yaw_mult_amt < 0) {
+                pid_yaw_mult_amt = 0;
+            }
         }
+
         request->send(200, "text/plain", "OK"); });
 
-    // Pitch / Roll
-    server.on("/Ppitchrollinc", HTTP_GET, [](AsyncWebServerRequest *request)
+    // Set Gains
+    server.on("/pidgain", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        if (pid_roll_mult_amt == 0) {
-            pitch_gains[0] += 0.01;
-            roll_gains[0] += 0.01;
+        // Pitch and roll gains 
+        if (request->hasParam("Ppitchrollinc")) {
+            if (pid_roll_mult_amt == 0) {
+                pitch_gains[0] += 0.01;
+                roll_gains[0] += 0.01;
+            }
+            if (pid_roll_mult_amt == 1) {
+                pitch_gains[0] += 0.1;
+                roll_gains[0] += 0.1;
+            }
+            if (pid_roll_mult_amt == 2) {
+                pitch_gains[0] += 1.0;
+                roll_gains[0] += 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 1) {
-            pitch_gains[0] += 0.1;
-            roll_gains[0] += 0.1;
+        if (request->hasParam("Ipitchrollinc")) {
+            if (pid_roll_mult_amt == 0) {
+                pitch_gains[1] += 0.01;
+                roll_gains[1] += 0.01;
+            }
+            if (pid_roll_mult_amt == 1) {
+                pitch_gains[1] += 0.1;
+                roll_gains[1] += 0.1;
+            }
+            if (pid_roll_mult_amt == 2) {
+                pitch_gains[1] += 1.0;
+                roll_gains[1] += 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 2) {
-            pitch_gains[0] += 1.0;
-            roll_gains[0] += 1.0;
+        if (request->hasParam("Dpitchrollinc")) {
+            if (pid_roll_mult_amt == 0) {
+                pitch_gains[2] += 0.01;
+                roll_gains[2] += 0.01;
+            }
+            if (pid_roll_mult_amt == 1) {
+                pitch_gains[2] += 0.1;
+                roll_gains[2] += 0.1;
+            }
+            if (pid_roll_mult_amt == 2) {
+                pitch_gains[2] += 1.0;
+                roll_gains[2] += 1.0;
+            }
         }
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Ipitchrollinc", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_roll_mult_amt == 0) {
-            pitch_gains[1] += 0.01;
-            roll_gains[1] += 0.01;
+        if (request->hasParam("Ppitchrolldec")) {
+            if (pid_roll_mult_amt == 0) {
+                pitch_gains[0] -= 0.01;
+                roll_gains[0] -= 0.01;
+            }
+            if (pid_roll_mult_amt == 1) {
+                pitch_gains[0] -= 0.1;
+                roll_gains[0] -= 0.1;
+            }
+            if (pid_roll_mult_amt == 2) {
+                pitch_gains[0] -= 1.0;
+                roll_gains[0] -= 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 1) {
-            pitch_gains[1] += 0.1;
-            roll_gains[1] += 0.1;
+        if (request->hasParam("Ipitchrolldec")) {
+            if (pid_roll_mult_amt == 0) {
+                pitch_gains[1] -= 0.01;
+                roll_gains[1] -= 0.01;
+            }
+            if (pid_roll_mult_amt == 1) {
+                pitch_gains[1] -= 0.1;
+                roll_gains[1] -= 0.1;
+            }
+            if (pid_roll_mult_amt == 2) {
+                pitch_gains[1] -= 1.0;
+                roll_gains[1] -= 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 2) {
-            pitch_gains[1] += 1.0;
-            roll_gains[1] += 1.0;
-        }      
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Dpitchrollinc", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_roll_mult_amt == 0) {
-            pitch_gains[2] += 0.01;
-            roll_gains[2] += 0.01;
+        if (request->hasParam("Dpitchrolldec")) {
+            if (pid_roll_mult_amt == 0) {
+                pitch_gains[2] -= 0.01;
+                roll_gains[2] -= 0.01;
+            }
+            if (pid_roll_mult_amt == 1) {
+                pitch_gains[2] -= 0.1;
+                roll_gains[2] -= 0.1;
+            }
+            if (pid_roll_mult_amt == 2) {
+                pitch_gains[2] -= 1.0;
+                roll_gains[2] -= 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 1) {
-            pitch_gains[2] += 0.1;
-            roll_gains[2] += 0.1;
+        // Yaw gains
+        if (request->hasParam("Pyawinc")) {
+            if (pid_yaw_mult_amt == 0) {
+                yaw_gains[0] += 0.01;
+            }
+            if (pid_yaw_mult_amt == 1) {
+                yaw_gains[0] += 0.1;
+            }
+            if (pid_yaw_mult_amt == 2) {
+                yaw_gains[0] += 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 2) {
-            pitch_gains[2] += 1.0;
-            roll_gains[2] += 1.0;
-        }       
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Ppitchrolldec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_roll_mult_amt == 0) {
-            pitch_gains[0] -= 0.01;
-            roll_gains[0] -= 0.01;
+        if (request->hasParam("Iyawinc")) {
+            if (pid_yaw_mult_amt == 0) {
+                yaw_gains[1] += 0.01;
+            }
+            if (pid_yaw_mult_amt == 1) {
+                yaw_gains[1] += 0.1;
+            }
+            if (pid_yaw_mult_amt == 2) {
+                yaw_gains[1] += 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 1) {
-            pitch_gains[0] -= 0.1;
-            roll_gains[0] -= 0.1;
+        if (request->hasParam("Dyawinc")) {
+            if (pid_yaw_mult_amt == 0) {
+                yaw_gains[2] += 0.01;
+            }
+            if (pid_yaw_mult_amt == 1) {
+                yaw_gains[2] += 0.1;
+            }
+            if (pid_yaw_mult_amt == 2) {
+                yaw_gains[2] += 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 2) {
-            pitch_gains[0] -= 1.0;
-            roll_gains[0] -= 1.0;
-        }        
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Ipitchrolldec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_roll_mult_amt == 0) {
-            pitch_gains[1] -= 0.01;
-            roll_gains[1] -= 0.01;
+        if (request->hasParam("Pyawdec")) {
+            if (pid_yaw_mult_amt == 0) {
+                yaw_gains[0] -= 0.01;
+            }
+            if (pid_yaw_mult_amt == 1) {
+                yaw_gains[0] -= 0.1;
+            }
+            if (pid_yaw_mult_amt == 2) {
+                yaw_gains[0] -= 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 1) {
-            pitch_gains[1] -= 0.1;
-            roll_gains[1] -= 0.1;
+        if (request->hasParam("Iyawdec")) {
+            if (pid_yaw_mult_amt == 0) {
+                yaw_gains[1] -= 0.01;
+            }
+            if (pid_yaw_mult_amt == 1) {
+                yaw_gains[1] -= 0.1;
+            }
+            if (pid_yaw_mult_amt == 2) {
+                yaw_gains[1] -= 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 2) {
-            pitch_gains[1] -= 1.0;
-            roll_gains[1] -= 1.0;
-        }        
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Dpitchrolldec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_roll_mult_amt == 0) {
-            pitch_gains[2] -= 0.01;
-            roll_gains[2] -= 0.01;
+        if (request->hasParam("Dyawdec")) {
+            if (pid_yaw_mult_amt == 0) {
+                yaw_gains[2] -= 0.01;
+            }
+            if (pid_yaw_mult_amt == 1) {
+                yaw_gains[2] -= 0.1;
+            }
+            if (pid_yaw_mult_amt == 2) {
+                yaw_gains[2] -= 1.0;
+            }
         }
-        if (pid_roll_mult_amt == 1) {
-            pitch_gains[2] -= 0.1;
-            roll_gains[2] -= 0.1;
-        }
-        if (pid_roll_mult_amt == 2) {
-            pitch_gains[2] -= 1.0;
-            roll_gains[2] -= 1.0;
-        }        
-        request->send(200, "text/plain", "OK"); });
-
-    // Yaw
-    server.on("/Pyawinc", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_yaw_mult_amt == 0) {
-            yaw_gains[0] += 0.01;
-        }
-        if (pid_yaw_mult_amt == 1) {
-            yaw_gains[0] += 0.1;
-        }
-        if (pid_yaw_mult_amt == 2) {
-            yaw_gains[0] += 1.0;
-        }        
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Iyawinc", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_yaw_mult_amt == 0) {
-            yaw_gains[1] += 0.01;
-        }
-        if (pid_yaw_mult_amt == 1) {
-            yaw_gains[1] += 0.1;
-        }
-        if (pid_yaw_mult_amt == 2) {
-            yaw_gains[1] += 1.0;
-        }       
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Dyawinc", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_yaw_mult_amt == 0) {
-            yaw_gains[2] += 0.01;
-        }
-        if (pid_yaw_mult_amt == 1) {
-            yaw_gains[2] += 0.1;
-        }
-        if (pid_yaw_mult_amt == 2) {
-            yaw_gains[2] += 1.0;
-        }        
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Pyawdec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_yaw_mult_amt == 0) {
-            yaw_gains[0] -= 0.01;
-        }
-        if (pid_yaw_mult_amt == 1) {
-            yaw_gains[0] -= 0.1;
-        }
-        if (pid_yaw_mult_amt == 2) {
-            yaw_gains[0] -= 1.0;
-        }        
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Iyawdec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_yaw_mult_amt == 0) {
-            yaw_gains[1] -= 0.01;
-        }
-        if (pid_yaw_mult_amt == 1) {
-            yaw_gains[1] -= 0.1;
-        }
-        if (pid_yaw_mult_amt == 2) {
-            yaw_gains[1] -= 1.0;
-        }         
-        request->send(200, "text/plain", "OK"); });
-    server.on("/Dyawdec", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-        if (pid_yaw_mult_amt == 0) {
-            yaw_gains[2] -= 0.01;
-        }
-        if (pid_yaw_mult_amt == 1) {
-            yaw_gains[2] -= 0.1;
-        }
-        if (pid_yaw_mult_amt == 2) {
-            yaw_gains[2] -= 1.0;
-        }        
-        request->send(200, "text/plain", "OK"); });
-
+                request->send(200, "text/plain", "OK"); });
+                
     // Calibrations
-    server.on("/yescalibrate", HTTP_GET, [](AsyncWebServerRequest *request)
+    server.on("/calibrate", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        calibrateSensors = true;        
+        if (request->hasParam("yes")) {
+            calibrateSensors = true;
+        }
+        if (request->hasParam("no")) {
+            calibrateSensors = false;
+        }       
         request->send(200, "text/plain", "OK"); });
 
     server.serveStatic("/", SPIFFS, "/");

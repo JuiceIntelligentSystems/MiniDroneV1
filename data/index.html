@@ -98,8 +98,8 @@
                 <p class="calibStage" id="stage4">Calibration Complete</p>
                 <p class="calibStage" id="stage5">Storing Data To ESP32 EEPROM...</p>
                 <p class="calibStage" id="stage6">Data Stored. Reload Page For Changes To Take Effect</p>
-                <button class="response-button" id="yescalibrate" onclick="controlMessage(this)">YES</button>
-                <button class="response-button" id="nocalibrate" onclick="controlMessage(this)">NO</button>
+                <button class="response-button" id="yes" onclick="controlMessage(this)">YES</button>
+                <button class="response-button" id="no" onclick="controlMessage(this)">NO</button>
             </div>
         </div>
     </div>
@@ -116,8 +116,8 @@
                     <button id="Ipitchrollinc" class="inc" onclick="setgain(this)">INC I</button>
                     <button id="Dpitchrollinc" class="inc" onclick="setgain(this)">INC D</button>
                 </p>
-                <button id="rollMultinc" class="inc_mult" onclick="setMult(this)"><i class="arrow left"></i></button>
-                <button id="rollMultdec" class="dec_mult" onclick="setMult(this)"><i class="arrow right"></i></button>
+                <button id="rollinc" class="inc_mult" onclick="setMult(this)"><i class="arrow left"></i></button>
+                <button id="rolldec" class="dec_mult" onclick="setMult(this)"><i class="arrow right"></i></button>
                 <p>
                     <button id="Ppitchrolldec" class="dec" onclick="setgain(this)">DEC P</button>
                     <button id="Ipitchrolldec" class="dec" onclick="setgain(this)">DEC I</button>
@@ -136,8 +136,8 @@
                     <button id="Iyawinc" class="inc" onclick="setgain(this)">INC I</button>
                     <button id="Dyawinc" class="inc" onclick="setgain(this)">INC D</button>
                 </p>
-                <button id="yawMultinc" class="inc_mult" onclick="setMult(this)"><i class="arrow left"></i></button>
-                <button id="yawMultdec" class="dec_mult" onclick="setMult(this)"><i class="arrow right"></i></button>
+                <button id="yawinc" class="inc_mult" onclick="setMult(this)"><i class="arrow left"></i></button>
+                <button id="yawdec" class="dec_mult" onclick="setMult(this)"><i class="arrow right"></i></button>
                 <p>
                     <button id="Pyawdec" class="dec" onclick="setgain(this)">DEC P</button>
                     <button id="Iyawdec" class="dec" onclick="setgain(this)">DEC I</button>

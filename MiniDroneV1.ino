@@ -51,11 +51,12 @@ void loop()
     controller.sendPIDGains();
     controller.sendVBatt();
 
+    controller.setSetpoints(control_input);
     controller.calculatePID(sensors.euler_z, sensors.euler_y, sensors.gyro_yaw);
 
     controller.loopRate(100);
 
-    controller.control(bldc);
+    controller.control(throttle);
 
     net.sendData(sensors.gyro_json, sensors.baro_json, controller.PID_gains_json, controller.vbatt_json);
     if (calibrateSensors == true)
