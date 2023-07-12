@@ -83,26 +83,26 @@ void Network::startNetwork()
         if (request->hasParam("throttle")) {
             inputMessage = request->getParam("throttle")->value();
             throttle = inputMessage.toInt();
-            Serial.print("Throttle: ");
-            Serial.println(throttle);
+            //Serial.print("Throttle: ");
+            //Serial.println(throttle);
         }
         else if (request->hasParam("yaw")) {
             inputMessage = request->getParam("yaw")->value();
             control_input[2] = inputMessage.toInt();
-            Serial.print("Yaw: ");
-            Serial.println(control_input[2]);
+            //Serial.print("Yaw: ");
+            //Serial.println(control_input[2]);
         }
         else if (request->hasParam("pitch")) {
             inputMessage = request->getParam("pitch")->value();
             control_input[1] = inputMessage.toInt();
-            Serial.print("Pitch: ");
-            Serial.println(control_input[1]);
+            //Serial.print("Pitch: ");
+            //Serial.println(control_input[1]);
         }
         else if (request->hasParam("roll")) {
             inputMessage = request->getParam("roll")->value();
             control_input[0] = inputMessage.toInt();
-            Serial.print("Roll: ");
-            Serial.println(control_input[0]);
+            //Serial.print("Roll: ");
+            //Serial.println(control_input[0]);
         }
         else {
             inputMessage = "No message sent";
@@ -298,7 +298,7 @@ void Network::startNetwork()
             }
         }
                 request->send(200, "text/plain", "OK"); });
-                
+
     // Calibrations
     server.on("/calibrate", HTTP_GET, [](AsyncWebServerRequest *request)
               {

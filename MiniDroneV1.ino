@@ -7,9 +7,7 @@
 /---------------------------------------------------------------------------/
 
 TODO:
-    -Add Joystick Controls
-    -Update PID Setpoint to match controls
-    -Add Buzzer Support
+    -Fix Throttle Joystick bug
     -Add Altitude Correction
     -Fix Battery Voltage Reading
     -Add Safety Features
@@ -39,6 +37,7 @@ void setup()
     controller.calibrateESCs();
 
     Serial.println("Drone Ready");
+    buzz.playStartupTone();
 }
 
 void loop()

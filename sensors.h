@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include "networking.h"
+#include "buzzer.h"
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
@@ -15,6 +16,7 @@
 
 JSONVar readings;
 Network net;
+Buzzer buzz;
 
 class Sensors;
 
@@ -244,6 +246,9 @@ void Sensors::calibrateBNO()
         accel_sum.x() = accel_sum.x() + accel_readings.x();
         accel_sum.y() = accel_sum.y() + accel_readings.y();
         accel_sum.z() = accel_sum.z() + accel_readings.z();
+
+        buzz.playCalibrateTone();
+
         delay(10);
     }
     imu::Vector<3> gyro_mean;
@@ -298,6 +303,8 @@ void Sensors::calibrateBNO()
     readings["CALIBDAT"] = String(stage);
     stage_json = JSON.stringify(readings);
     net.sendStageOfCalib(readings);
+
+    buzz.playCalibratedTone();
 
     Serial.println("\n-------------------------------------\n");
     Serial.println("Resetting...");
