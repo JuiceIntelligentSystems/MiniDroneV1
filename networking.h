@@ -15,7 +15,7 @@
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
 
-int throttle = 0;
+int throttle = 1000;
 
 int control_input[3] = {0, 0, 0};
 

@@ -13,8 +13,8 @@ ESC esc[NUM_OF_MOTORS];
 
 /*--------------PID TUNING--------------*/
 //                       P     I     D
-float pitch_gains[3] = {0.0, 0.0, 0.0};
-float roll_gains[3] = {0.0, 0.0, 0.0};
+float pitch_gains[3] = {1.3, 0.04, 18.0};
+float roll_gains[3] = {1.3, 0.04, 18.0};
 float yaw_gains[3] = {0.0, 0.0, 0.0};
 /*---------------------------------------*/
 
