@@ -7,7 +7,6 @@
 /---------------------------------------------------------------------------/
 
 TODO:
-    -Fix Throttle Joystick bug
     -Add Altitude Correction
     -Fix Battery Voltage Reading
     -Add Safety Features
