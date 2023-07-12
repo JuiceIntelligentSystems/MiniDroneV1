@@ -234,6 +234,16 @@ function createDirectionJoystick(parent) {
         stick.style.transform = `translate3d(${offset}px, ${offset}px, 0px)`;
         dragStart = null;
         current_dir_pos = { x: 0, y: 0 };
+
+        // Send data again so that the drone doesn't go in a direction forever
+        var xhr_pitch = new XMLHttpRequest();
+        var xhr_roll = new XMLHttpRequest();
+
+        xhr_pitch.open("GET", "/controls?pitch=" + current_dir_pos.y, true);
+        xhr_roll.open("GET", "/controls?roll=" + current_dir_pos.x, true);
+
+        xhr_pitch.send();
+        xhr_roll.send();
     }
 
     parent.appendChild(stick);
@@ -289,16 +299,21 @@ function createThrottleJoystick(parent) {
         const yDiff = event.clientY - dragStart.y;
         const angle = Math.atan2(yDiff, xDiff);
         const distance = Math.min(maxDiff, Math.hypot(xDiff, yDiff));
+
         if (Math.abs(xDiff) > 30) {
             xNew = distance * Math.cos(angle) + offset;
+            yNew = distance * Math.sin(angle) + offset;
+
+            current_throttle_pos = { x: (xNew - offset) * 10, y: (yNew - offset) * 10 };
         } else {
             xNew = Math.cos(angle) + offset;
+            yNew = event.clientY - stick.offsetTop;
+            yNew = Math.max(offset - maxDiff, Math.min(offset + maxDiff, yNew));
+
+            current_throttle_pos = { x: 0, y: (yNew - offset) * 10 };
         }
-        yNew = distance * Math.sin(angle) + offset;
 
         stick.style.transform = `translate3d(${xNew}px, ${yNew}px, 0px)`;
-
-        current_throttle_pos = { x: (xNew - offset) * 10, y: (yNew - offset) * 10 };
 
         // Send Data
         var xhr_throttle = new XMLHttpRequest();
@@ -318,6 +333,16 @@ function createThrottleJoystick(parent) {
         stick.style.transform = `translate3d(${offset}px, ${yNew}px, 0px)`;
         dragStart = null;
         current_throttle_pos = { x: 0, y: (yNew - offset) * 10 };
+
+        // Send data again so that the drone doesn't go in a direction forever
+        var xhr_throttle = new XMLHttpRequest();
+        var xhr_yaw = new XMLHttpRequest();
+
+        xhr_throttle.open("GET", "/controls?throttle=" + Math.round(current_throttle_pos.y), true);
+        xhr_yaw.open("GET", "/controls?yaw=" + Math.round(current_throttle_pos.x), true);
+
+        xhr_throttle.send();
+        xhr_yaw.send();
     }
 
     parent.appendChild(stick);

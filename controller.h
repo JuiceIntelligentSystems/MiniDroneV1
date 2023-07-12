@@ -98,6 +98,7 @@ void Controller::setSetpoints(int *control_input)
 {
     for (int i = 0; i < NUM_OF_MOTORS; i++)
     {
+        control_input[i] = -control_input[i];
         control_input[i] = map(control_input[i], -1000, 1000, 0, 1000);
 
         if (control_input[i] < 485) setpoint[i] = (control_input[i] - 485.0) / 3.0;
@@ -145,6 +146,7 @@ void Controller::calculatePID(float gyro_roll, float gyro_pitch, float gyro_yaw)
 
 void Controller::control(int throttle)
 {
+    throttle = -throttle;
     throttle = map(throttle, -1000, 1000, 0, 1000);
 
     //                          Pitch            Roll             Yaw
