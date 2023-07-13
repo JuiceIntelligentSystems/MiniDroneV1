@@ -98,7 +98,7 @@ void Controller::calibrateESCs()
 
 void Controller::setSetpoints(int *control_input)
 {
-    for (int i = 0; i < NUM_OF_MOTORS; i++)
+    for (int i = 0; i < 3; i++)
     {
         control_input[i] = -control_input[i];
         control_input[i] = map(control_input[i], -1000, 1000, 0, 1000);
