@@ -16,6 +16,8 @@ ESC esc[NUM_OF_MOTORS];
 float pitch_gains[3] = {1.3, 0.04, 18.0};
 float roll_gains[3] = {1.3, 0.04, 18.0};
 float yaw_gains[3] = {0.0, 0.0, 0.0};
+
+const int windup_guard = 400;
 /*---------------------------------------*/
 
 class Controller;
@@ -101,8 +103,10 @@ void Controller::setSetpoints(int *control_input)
         control_input[i] = -control_input[i];
         control_input[i] = map(control_input[i], -1000, 1000, 0, 1000);
 
-        if (control_input[i] < 485) setpoint[i] = (control_input[i] - 485.0) / 3.0;
-        if (control_input[i] > 515) setpoint[i] = (control_input[i] - 515.0) / 3.0;
+        if (control_input[i] < 485)
+            setpoint[i] = (control_input[i] - 485.0) / 3.0;
+        if (control_input[i] > 515)
+            setpoint[i] = (control_input[i] - 515.0) / 3.0;
     }
 }
 
@@ -137,6 +141,15 @@ void Controller::calculatePID(float gyro_roll, float gyro_pitch, float gyro_yaw)
     total_error[1] += roll_gains[1] * new_error[1] * dt;
     total_error[2] += yaw_gains[1] * new_error[2] * dt;
 
+    // Anti-Windup
+    for (int i = 0; i < 3; i++)
+    {
+        if (total_error[i] > windup_guard)
+            total_error[i] = windup_guard;
+        else if (total_error[i] < -windup_guard)
+            total_error[i] = -windup_guard;
+    }
+
     // Calculate Whole PID
     //                              Proportional              Integral                   Derivative
     adjustments[0] = (int)(pitch_gains[0] * new_error[0] + total_error[0] + pitch_gains[2] * (new_error[0] - old_error[0]) / dt);
@@ -146,8 +159,11 @@ void Controller::calculatePID(float gyro_roll, float gyro_pitch, float gyro_yaw)
 
 void Controller::control(int throttle)
 {
-    throttle = -throttle;
+    throttle = -throttle; // The throttle input from the joystick is the opposite
     throttle = map(throttle, -1000, 1000, 0, 1000);
+
+    // Clamp the throttle to 800 to give room for the pid controller
+    (throttle > 800) ? (throttle = 800) : throttle;
 
     //                          Pitch            Roll             Yaw
     new_speeds[0] = throttle - adjustments[0] - adjustments[1] + adjustments[2];
