@@ -137,9 +137,9 @@ void Controller::calculatePID(float gyro_roll, float gyro_pitch, float gyro_yaw)
     new_error[2] = setpoint[2] - angles[2];
 
     // Integrations
-    total_error[0] += pitch_gains[1] * new_error[0] * dt;
-    total_error[1] += roll_gains[1] * new_error[1] * dt;
-    total_error[2] += yaw_gains[1] * new_error[2] * dt;
+    total_error[0] += pitch_gains[1] * new_error[0];
+    total_error[1] += roll_gains[1] * new_error[1];
+    total_error[2] += yaw_gains[1] * new_error[2];
 
     // Anti-Windup
     for (int i = 0; i < 3; i++)
@@ -152,8 +152,8 @@ void Controller::calculatePID(float gyro_roll, float gyro_pitch, float gyro_yaw)
 
     // Calculate Whole PID
     //                              Proportional              Integral                   Derivative
-    adjustments[0] = (int)(pitch_gains[0] * new_error[0] + total_error[0] + pitch_gains[2] * (new_error[0] - old_error[0]) / dt);
-    adjustments[1] = (int)(roll_gains[0] * new_error[1] + total_error[1] + roll_gains[2] * (new_error[1] - old_error[1]) / dt);
+    adjustments[0] = (int)(pitch_gains[0] * new_error[0] + total_error[0] + pitch_gains[2] * (new_error[0] - old_error[0]));
+    adjustments[1] = (int)(roll_gains[0] * new_error[1] + total_error[1] + roll_gains[2] * (new_error[1] - old_error[1]));
     adjustments[2] = (int)(yaw_gains[0] * new_error[2] + total_error[2]);
 }
 

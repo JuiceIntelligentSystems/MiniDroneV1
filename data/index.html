@@ -21,6 +21,7 @@
             <button class="link" onclick="openWindow(event, 'Controls')" id="defaultOpen">Controls</button>
             <button class="link" onclick="openWindow(event, 'Statistics')">Statistics</button>
             <button class="link" onclick="openWindow(event, 'PIDTuning')">PID Tuning</button>
+            <button class="link" onclick="openWindow(event, 'DEBUG')">DEBUG</button>
         </div>
     </div>
     <div class="VBatt">
@@ -149,6 +150,17 @@
                     <span class="reading">D: <span id="D_yaw"></span> </span>
                 </p>
             </div>
+        </div>
+    </div>
+    <div id="DEBUG" class="tabcontent">
+        <div class="topnav">
+            <h1> DEBUG CONTROLS </h1>
+        </div>
+        <div class="content">
+            <div class="control-slider">
+                <p><input id="throttle" class="throttle-range" type="range" step="1" value="0" min="0" max="1000"></p>
+            </div>
+            <span class="throttle-range-val">THROTTLE: <span id="throttle-value"></span></span>
         </div>
     </div>
     <script src="script.js"></script>

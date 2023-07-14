@@ -25,11 +25,6 @@ if (!!window.EventSource) {
         document.getElementById("eulerX").innerHTML = obj.eulerX;
         document.getElementById("eulerY").innerHTML = obj.eulerY;
         document.getElementById("eulerZ").innerHTML = obj.eulerZ;
-
-        cube.rotation.x = obj.eulerY / 100;
-        cube.rotation.z = obj.eulerZ / 100;
-        cube.rotation.y = obj.eulerX / 100;
-        renderer.render(scene, camera);
     }, false);
 
     source.addEventListener('baro_readings', function(e) {
@@ -90,10 +85,19 @@ function openWindow(evt, winName) {
     }
 
     document.getElementById(winName).style.display = "block";
+
+    // Let Program know if using debug mode
+    var xhr = new XMLHttpRequest();
+    if (winName === "DEBUG") {
+        xhr.open("GET", "/controls?debug=1", true);
+    } else {
+        xhr.open("GET", "/controls?debug=0", true);
+    }
+    xhr.send();
 }
 
-/* -------------------------DISPLAY + SEND THROTTLE VALUE------------------------- */
-/*
+/* -------------------------DEBUG THROTTLE------------------------- */
+
 var throttle = document.getElementById("throttle"),
     throttle_val = document.getElementById("throttle-value");
 
@@ -102,10 +106,9 @@ throttle_val.innerHTML = throttle.value;
 throttle.oninput = function() {
     throttle_val.innerHTML = this.value;
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/throttle?value=" + this.value, true);
+    xhr.open("GET", "/debug?throttle=" + this.value, true);
     xhr.send();
 }
-*/
 
 /*-------------------------PID TUNING-------------------------*/
 // Sets the gain data

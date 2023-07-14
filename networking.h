@@ -27,6 +27,7 @@ int pid_roll_mult_amt = 0;
 int pid_yaw_mult_amt = 0;
 
 bool calibrateSensors = false;
+bool debug = false;
 
 class Network;
 
@@ -79,36 +80,63 @@ void Network::startNetwork()
     // Main Joystick Controls
     server.on("/controls", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        String inputMessage;
-        if (request->hasParam("throttle")) {
-            inputMessage = request->getParam("throttle")->value();
-            throttle = inputMessage.toInt();
-            //Serial.print("Throttle: ");
-            //Serial.println(throttle);
+        if (request->hasParam("debug")) {
+            String inputMessage;
+            inputMessage = request->getParam("debug")->value();
+            if (inputMessage.toInt() == 1) {
+                debug = true;
+            } else if (inputMessage.toInt() == 0) {
+                debug = false;
+            }
         }
-        else if (request->hasParam("yaw")) {
-            inputMessage = request->getParam("yaw")->value();
-            control_input[2] = inputMessage.toInt();
-            //Serial.print("Yaw: ");
-            //Serial.println(control_input[2]);
-        }
-        else if (request->hasParam("pitch")) {
-            inputMessage = request->getParam("pitch")->value();
-            control_input[1] = inputMessage.toInt();
-            //Serial.print("Pitch: ");
-            //Serial.println(control_input[1]);
-        }
-        else if (request->hasParam("roll")) {
-            inputMessage = request->getParam("roll")->value();
-            control_input[0] = inputMessage.toInt();
-            //Serial.print("Roll: ");
-            //Serial.println(control_input[0]);
-        }
-        else {
-            inputMessage = "No message sent";
-        }
+        if (!debug) {
+            if (request->hasParam("throttle")) {
+                String inputMessage;
+                inputMessage = request->getParam("throttle")->value();
+                throttle = inputMessage.toInt();
+                //Serial.print("Throttle: ");
+                //Serial.println(throttle);
+            }
+            if (request->hasParam("yaw")) {
+                String inputMessage;
+                inputMessage = request->getParam("yaw")->value();
+                control_input[2] = inputMessage.toInt();
+                //Serial.print("Yaw: ");
+                //Serial.println(control_input[2]);
+            }
+            if (request->hasParam("pitch")) {
+                String inputMessage;
+                inputMessage = request->getParam("pitch")->value();
+                control_input[1] = inputMessage.toInt();
+                //Serial.print("Pitch: ");
+                //Serial.println(control_input[1]);
+            }
+            if (request->hasParam("roll")) {
+                String inputMessage;
+                inputMessage = request->getParam("roll")->value();
+                control_input[0] = inputMessage.toInt();
+                //Serial.print("Roll: ");
+                //Serial.println(control_input[0]);
+            }
+        } 
 
         request->send(200, "text/plain", "OK"); });
+
+    // Debug Throttle
+    if (debug && throttle == 1000)
+    {
+        server.on("/debug", HTTP_GET, [](AsyncWebServerRequest *request)
+                  { 
+                    String inputMessage;
+                    if (request->hasParam("throttle")) {
+                        inputMessage = request->getParam("throttle")->value();
+                        throttle = map(inputMessage.toInt(), 0, 1000, 1000, -1000);
+                    } else {
+                        inputMessage = "No message sent";
+                    }
+
+                    request->send(200, "text/plain", "OK"); });
+    }
 
     // PID Tuning
     // DEBUG! OFFICIAL VALUES WILL BE SET AND LOCKED AFTER TUNING
